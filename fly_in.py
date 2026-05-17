@@ -10,7 +10,7 @@ def fly_in() -> None:
         print("No .txt file provided.\n"
               "Run the program with one of the following commands:\n"
               "-> python3 fly_in.py <map_path>.<map_name>\n"
-              "-> Add the correct <map_name> on the Makefile and type make run\n")
+              "-> Add the <map_name> on the Makefile and type make run\n")
 
     try:
         parser = MapParser(file_path)

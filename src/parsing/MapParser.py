@@ -13,13 +13,12 @@ class MapParser:
         and convert them to the needed type
     """
     def __init__(self, file_path: str) -> None:
-        self.file_path: str = file_path       
+        self.file_path: str = file_path
         self.nb_drones: int = 0
         self.start_zone: Zone | None = None
         self.end_zone: Zone | None = None
         self.zones: dict[str, Zone] = {}
         self.connections: list[Connection] = []
-
 
     def validate_required_elements(self) -> None:
         """
@@ -33,7 +32,6 @@ class MapParser:
             raise MapParserError("Missing start_hub in the map file.")
         if not self.end_zone:
             raise MapParserError("Missing end_hub in the map file.")
-
 
     def parse_map(self) -> None:
         """
@@ -56,20 +54,21 @@ class MapParser:
                     if line.startswith("nb_drones:"):
                         self.parse_nb_drones(line)
 
-                    elif (line.startswith("start_hub:")
-                          or line.startswith("end_hub:")
-                          or line.startswith("hub:")):
-                          self.parse_zone(line)
-                    
+                    elif (
+                        line.startswith("start_hub:")
+                        or line.startswith("end_hub:")
+                        or line.startswith("hub:")
+                    ):
+                        self.parse_zone(line)
+
                     elif line.startswith("connection:"):
                         self.parse_connection(line)
 
                     else:
                         raise MapParserError(f"Parsing error on line {i}")
-            self.validate_required_elements()    
+            self.validate_required_elements()
         except FileNotFoundError:
             raise MapParserError(f"File '{self.file_path}' was not found.")
-
 
     def parse_nb_drones(self, line: str) -> None:
         """
@@ -93,8 +92,6 @@ class MapParser:
 
         except ValueError:
             raise MapParserError("nb_drones must be an integer.")
-
-
 
     def parse_zone(self, line: str) -> None:
         """
@@ -136,7 +133,8 @@ class MapParser:
                 # DUPLICATE COORDS
                 for zone in self.zones.values():
                     if zone.x == x and zone.y == y:
-                        raise MapParserError(f"Duplicated coordinates ({x}, {y}).")
+                        raise MapParserError("Duplicated coordinates "
+                                             f"({x}, {y}).")
 
                 # CREATE ZONE
                 zone = Zone(name, x, y)
@@ -159,7 +157,6 @@ class MapParser:
         except ValueError:
             raise MapParserError(f"Invalid coordinates in {key} '{name}'.")
 
-
     def parse_connection(self, line: str) -> None:
         """
         Parse a connection between two zones.
@@ -173,9 +170,57 @@ class MapParser:
         Store: self.connections
         Raise MapParserError: If the connection is invalid.
         """
-        
+        _, value = line.split(':', 1)  # maxsplit=1
+        value = value.strip()
 
-    def parse_metadata(self, line: str) -> None:
+        metadata_dict: dict[str, str] = {}
+
+        if '[' in value:
+            c_data, metadata = value.split('[', 1)
+            metadata = metadata.replace("]", "")
+            metadata_dict = self.parse_metadata(metadata)
+        else:
+            c_data = value
+
+        c_data = c_data.split('-')
+
+        # ZONE AMOUNT
+        if len(c_data) != 2:
+            raise MapParserError("Each connection must have "
+                                 "exactly two zones.")
+        zone_a, zone_b = c_data
+        zone_a, zone_b = zone_a.strip(), zone_b.strip()
+
+        # SELF CONNECTION
+        if zone_a == zone_b:
+            raise MapParserError("Self-connections are "
+                                 f"not allowed: '{zone_a}'.")
+
+        # UNKNOWN ZONES
+        if zone_a not in self.zones:
+            raise MapParserError(f"Unknown zone '{zone_a}'.")
+        if zone_b not in self.zones:
+            raise MapParserError(f"Unknown zone '{zone_b}'.")
+
+        # ---------------- DUPLICATE CONNECTIONS ----------------
+        new_connection = sorted([zone_a, zone_b])
+
+        for connection in self.connections:
+            existing = sorted([
+                connection.zone_a,
+                connection.zone_b
+            ])
+            if existing == new_connection:
+                raise MapParserError(
+                    f"Duplicate connection '{zone_a}-{zone_b}'.")
+
+        # Check for the presence of max_link_capacity
+        # If not, use the default value 1
+        max_link_capacity = int(metadata_dict.get("max_link_capacity", 1))
+        connection = Connection(zone_a, zone_b, max_link_capacity)
+        self.connections.append(connection)
+
+    def parse_metadata(self, line: str) -> dict[str, str | int]:
         """
         Parse metadata and special commands from the map file.
 
