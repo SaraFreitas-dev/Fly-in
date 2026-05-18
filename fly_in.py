@@ -16,7 +16,7 @@ def fly_in() -> None:
     try:
         parser = MapParser(file_path)
         parser.parse_map()
-        
+
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
         print(f"Failed on the function: {tb[-1].name}")

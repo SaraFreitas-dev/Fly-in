@@ -1,5 +1,10 @@
 from src.core.models import Connection, Zone
-from src.render.constants import *
+from src.render.constants import (
+    ZONE_DEFAULT,
+    COLOR_DEFAULT,
+    MAX_DRONES_DEFAULT,
+    META_MAX_L_CAP_DEFAULT
+)
 
 
 class MapParserError(Exception):
@@ -107,50 +112,56 @@ class MapParser:
         key, value = line.split(':', 1)  # maxsplit=1
         value = value.strip()
 
+        metadata_dict: dict[str, str] = {}
+
         if '[' in value:
             main_data, metadata = value.split('[', 1)
             metadata = metadata.replace("]", "")
-            self.parse_metadata(metadata)
+            metadata_dict = self.parse_metadata(metadata)
         else:
             main_data = value
 
         try:
-                main_data_v = main_data.split()
+            main_data_v = main_data.split()
 
-                if len(main_data_v) != 3:
-                    raise MapParserError(f"Missing required values for {key}.")
+            if len(main_data_v) != 3:
+                raise MapParserError(f"Missing required values for {key}.")
 
-                name, x, y = main_data_v
-                x = int(x)
-                y = int(y)
+            name, x, y = main_data_v
+            x = int(x)
+            y = int(y)
 
-                # DUPLICATE NAME
-                if name in self.zones:
-                    raise MapParserError(f"{name} name is duplicated.")
+            # DUPLICATE NAME
+            if name in self.zones:
+                raise MapParserError(f"{name} name is duplicated.")
 
-                # DUPLICATE COORDS
-                for zone in self.zones.values():
-                    if zone.x == x and zone.y == y:
-                        raise MapParserError("Duplicated coordinates "
-                                             f"({x}, {y}).")
+            # DUPLICATE COORDS
+            for zone in self.zones.values():
+                if zone.x == x and zone.y == y:
+                    raise MapParserError("Duplicated coordinates "
+                                         f"({x}, {y}).")
 
-                # CREATE ZONE
-                zone = Zone(name, x, y)
+            # CREATE ZONE
+            # Check for the presence of metadata, else use the default values
+            zone_type = metadata_dict.get("zone", ZONE_DEFAULT)
+            color = metadata_dict.get("color", COLOR_DEFAULT)
+            max_drones = metadata_dict.get("max_drones", MAX_DRONES_DEFAULT)
+            zone = Zone(name, x, y, zone_type, color, max_drones)
 
-                # START / END
+            # START / END
 
-                if key == "start_hub":
-                    if self.start_zone is not None:
-                        raise MapParserError("Duplicate start_hub definition.")
-                    self.start_zone = zone
+            if key == "start_hub":
+                if self.start_zone is not None:
+                    raise MapParserError("Duplicate start_hub definition.")
+                self.start_zone = zone
 
-                elif key == "end_hub":
-                    if self.end_zone is not None:
-                        raise MapParserError("Duplicate end_hub definition.")
-                    self.end_zone = zone
+            elif key == "end_hub":
+                if self.end_zone is not None:
+                    raise MapParserError("Duplicate end_hub definition.")
+                self.end_zone = zone
 
-                # STORE
-                self.zones[name] = zone
+            # STORE
+            self.zones[name] = zone
 
         except ValueError:
             raise MapParserError(f"Invalid coordinates in {key} '{name}'.")
@@ -213,19 +224,17 @@ class MapParser:
 
         # Check for the presence of max_link_capacity
         # If not, use the default value 1
-        max_link_capacity = int(metadata_dict.get("max_link_capacity", 1))
+        max_link_capacity = int(metadata_dict.get("max_link_capacity",
+                                                  META_MAX_L_CAP_DEFAULT))
+        if max_link_capacity <= 0:
+            raise MapParserError("max_link_capacity must be a "
+                                 "positive integer.")
         connection = Connection(zone_a, zone_b, max_link_capacity)
         self.connections.append(connection)
 
     def parse_metadata(self, line: str) -> dict[str, str | int]:
         """
         Parse metadata and special commands from the map file.
-
-        Metadata may include:
-        - comments
-        - instructions
-        - parser directives
-        - optional configuration values
         Raise MapParserError: If the metadata format is invalid.
         """
         clean_line = line.split(' ')
@@ -238,4 +247,4 @@ class MapParser:
             return metadata_dict
 
         except Exception as e:
-            raise MapParserError(f"parse_metadata() failed at {e}")   
+            raise MapParserError(f"parse_metadata() failed at {e}")

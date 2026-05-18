@@ -1,8 +1,10 @@
 NAME = fly_in.py
 PYTHON = python3
 VENV = venv
-MAP ?= example.txt
 PIP = $(VENV)/bin/python3 -m pip
+
+LEVEL = easy
+MAP ?= 01_linear_path.txt
 
 all: install run
 
@@ -29,11 +31,11 @@ install: venv
 
 # RUN THE GAME
 run:
-	$(VENV)/bin/python3 $(NAME) assets/maps/$(MAP)
+	$(VENV)/bin/python3 $(NAME) assets/maps/$(LEVEL)/$(MAP)
 
 # DEBUGGER
 debug:
-	@$(VENV)/bin/python3 -m pdb $(NAME) assets/maps/$(MAP)
+	@$(VENV)/bin/python3 -m pdb $(NAME) assets/maps/$(LEVEL)/$(MAP)
 
 # CHECK FOR NORM ERRORS
 lint:
