@@ -1,0 +1,232 @@
+# 2️⃣ get_connected_zones()
+
+## 🎯 Purpose
+
+Return all reachable zones connected to one zone.
+
+---
+
+## 📋 Input
+
+```text
+hub
+```
+
+---
+
+## 📋 Output
+
+```text
+roof1
+corridorA
+```
+
+---
+
+## 📋 Pseudo-code
+
+```text
+RETURN connected_zones_map[current_zone]
+```
+
+---
+
+# 3️⃣ bfs_shortest_path()
+
+## 🎯 Purpose
+
+Use BFS to find the shortest valid path.
+
+---
+
+## 🧠 BFS Logic
+
+BFS explores:
+
+* layer by layer
+* shortest first
+* avoids infinite loops
+* avoids revisiting visited nodes
+
+---
+
+## 📋 Pseudo-code
+
+```text
+CREATE queue
+CREATE visited set
+CREATE parent dictionary
+
+ADD start zone to queue
+MARK start as visited
+
+WHILE queue not empty:
+
+    current = queue.pop_left()
+
+    IF current == goal:
+        reconstruct path
+        RETURN path
+
+    FOR each connected zone:
+
+        IF not visited:
+
+            mark visited
+            save parent
+            add to queue
+```
+
+---
+
+# 4️⃣ reconstruct_path()
+
+## 🎯 Purpose
+
+Rebuild the path after BFS reaches the goal.
+
+---
+
+## 🧠 Idea
+
+BFS stores:
+
+```python
+parent["roof2"] = "roof1"
+```
+
+So we backtrack:
+
+```text
+goal
+↓
+roof2
+↓
+roof1
+↓
+hub
+```
+
+Then reverse the path.
+
+---
+
+## 📋 Pseudo-code
+
+```text
+START from goal
+
+WHILE current exists:
+
+    add current to path
+    current = parent[current]
+
+REVERSE path
+RETURN path
+```
+
+---
+
+# 🚫 Blocked Zones
+
+The BFS should ignore blocked zones.
+
+---
+
+## 📋 Pseudo-code
+
+```text
+IF zone_type == blocked:
+    skip
+```
+
+---
+
+# ⚠ Restricted Zones
+
+Possible future behavior:
+
+* avoid if possible
+* higher movement cost
+* limited capacity
+
+For first version:
+
+```text
+Treat as normal zones
+```
+
+---
+
+# 📍 Example Final Path
+
+```python
+[
+    "hub",
+    "corridorA",
+    "tunnelB",
+    "goal"
+]
+```
+
+---
+
+# 🚁 Future Simulator Usage
+
+The simulator will later:
+
+```text
+move drone step-by-step through this list
+```
+
+Example:
+
+```text
+Turn 1 -> corridorA
+Turn 2 -> tunnelB
+Turn 3 -> goal
+```
+
+---
+
+# 🧠 Recommended Development Order
+
+## Phase 1
+
+✅ build_connected_zones_map()
+
+---
+
+## Phase 2
+
+✅ get_connected_zones()
+
+---
+
+## Phase 3
+
+✅ bfs_shortest_path()
+
+---
+
+## Phase 4
+
+✅ reconstruct_path()
+
+---
+
+## Phase 5
+
+✅ test unreachable maps
+
+---
+
+## Phase 6
+
+✅ simulator
+
+---
+
+## Phase 7
+
+✅ Pillow visualizer bonus

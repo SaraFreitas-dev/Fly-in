@@ -1,6 +1,7 @@
 import sys
 import traceback
 from src.parsing.MapParser import MapParser
+from src.core.PathFinder import PathFinder
 
 
 def fly_in() -> None:
@@ -16,6 +17,9 @@ def fly_in() -> None:
     try:
         parser = MapParser(file_path)
         parser.parse_map()
+
+        path = PathFinder(parser.zones, parser.connections)
+        path.build_connected_zones_map()
 
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
