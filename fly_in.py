@@ -1,4 +1,5 @@
 import sys
+import traceback
 from src.parsing.MapParser import MapParser
 
 
@@ -17,6 +18,8 @@ def fly_in() -> None:
         parser.parse_map()
         
     except Exception as e:
+        tb = traceback.extract_tb(e.__traceback__)
+        print(f"Failed on the function: {tb[-1].name}")
         print(f"{type(e).__name__}: {e}")
 
 

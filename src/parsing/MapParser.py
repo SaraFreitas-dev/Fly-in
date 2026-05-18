@@ -102,9 +102,7 @@ class MapParser:
         - the zone name is unique
         - the coordinates are valid integers
         - the coordinates are not duplicated
-
-        Raise MapParserError:
-                If the zone definition is invalid.
+        Raise MapParserError: If the zone definition is invalid.
         """
         key, value = line.split(':', 1)  # maxsplit=1
         value = value.strip()
@@ -166,7 +164,6 @@ class MapParser:
         - both zones exist
         - self-connections are not allowed
         - duplicate connections are not created
-
         Store: self.connections
         Raise MapParserError: If the connection is invalid.
         """
@@ -202,7 +199,7 @@ class MapParser:
         if zone_b not in self.zones:
             raise MapParserError(f"Unknown zone '{zone_b}'.")
 
-        # ---------------- DUPLICATE CONNECTIONS ----------------
+        # DUPLICATE CONNECTIONS
         new_connection = sorted([zone_a, zone_b])
 
         for connection in self.connections:
@@ -229,8 +226,16 @@ class MapParser:
         - instructions
         - parser directives
         - optional configuration values
-
-        Raise MapParserError:
-                If the metadata format is invalid.
+        Raise MapParserError: If the metadata format is invalid.
         """
-        pass
+        clean_line = line.split(' ')
+        metadata_dict: dict[str, str] = {}
+
+        try:
+            for c in clean_line:
+                key, value = c.split('=')
+                metadata_dict[key] = value
+            return metadata_dict
+
+        except Exception as e:
+            raise MapParserError(f"parse_metadata() failed at {e}")   
