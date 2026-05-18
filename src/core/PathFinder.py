@@ -1,6 +1,11 @@
 from src.core.models import Zone, Connection
 
 
+class PathFinderError(Exception):
+    """Custom error class for the PathFinder class"""
+    pass
+
+
 class PathFinder():
     """
     Uses get_connected_zones to see the near connections / neighbors
@@ -26,6 +31,7 @@ class PathFinder():
 
         for connection in self.connections:
             zone_a, zone_b = connection.zone_a, connection.zone_b
+
             if zone_a not in connected_zones:
                 connected_zones[zone_a] = []
             if zone_b not in connected_zones:
@@ -33,7 +39,18 @@ class PathFinder():
             
             connected_zones[zone_a].append(zone_b)
             connected_zones[zone_b].append(zone_a)
-
-        return connected_zones
+            self.connected_zones = connected_zones
+        return self.connected_zones
     
-    def get_connected_zones()
+    def get_connected_zones(self, zone: str) -> list[str]:
+        """
+        Return all reachable zones connected to one zone meaning it
+        Returns all its connected neighbors
+        """
+        if zone not in self.connected_zones:
+            raise PathFinder(f"The zone {zone} does not exist.")
+        zone_lst: list[str] = []
+        for value in self.connected_zones[zone]:
+            zone_lst.append(value)
+        print(zone_lst)
+        return zone_lst

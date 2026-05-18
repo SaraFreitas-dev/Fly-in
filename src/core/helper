@@ -1,46 +1,13 @@
-# 2️⃣ get_connected_zones()
 
-## 🎯 Purpose
-
-Return all reachable zones connected to one zone.
-
----
-
-## 📋 Input
-
-```text
-hub
-```
-
----
-
-## 📋 Output
-
-```text
-roof1
-corridorA
-```
-
----
-
-## 📋 Pseudo-code
-
-```text
-RETURN connected_zones_map[current_zone]
-```
-
----
 
 # 3️⃣ bfs_shortest_path()
 
-## 🎯 Purpose
-
+=
 Use BFS to find the shortest valid path.
 
 ---
 
-## 🧠 BFS Logic
-
+=
 BFS explores:
 
 * layer by layer
@@ -50,8 +17,7 @@ BFS explores:
 
 ---
 
-## 📋 Pseudo-code
-
+=
 ```text
 CREATE queue
 CREATE visited set
@@ -81,14 +47,12 @@ WHILE queue not empty:
 
 # 4️⃣ reconstruct_path()
 
-## 🎯 Purpose
-
+=
 Rebuild the path after BFS reaches the goal.
 
 ---
 
-## 🧠 Idea
-
+=
 BFS stores:
 
 ```python
@@ -111,8 +75,7 @@ Then reverse the path.
 
 ---
 
-## 📋 Pseudo-code
-
+=
 ```text
 START from goal
 
@@ -127,14 +90,12 @@ RETURN path
 
 ---
 
-# 🚫 Blocked Zones
-
+=
 The BFS should ignore blocked zones.
 
 ---
 
-## 📋 Pseudo-code
-
+=
 ```text
 IF zone_type == blocked:
     skip
@@ -158,8 +119,7 @@ Treat as normal zones
 
 ---
 
-# 📍 Example Final Path
-
+=
 ```python
 [
     "hub",
@@ -171,8 +131,7 @@ Treat as normal zones
 
 ---
 
-# 🚁 Future Simulator Usage
-
+=
 The simulator will later:
 
 ```text
@@ -187,21 +146,6 @@ Turn 2 -> tunnelB
 Turn 3 -> goal
 ```
 
----
-
-# 🧠 Recommended Development Order
-
-## Phase 1
-
-✅ build_connected_zones_map()
-
----
-
-## Phase 2
-
-✅ get_connected_zones()
-
----
 
 ## Phase 3
 

@@ -11,7 +11,7 @@ all: install run
 # INSTALL VENV
 venv:
 	@if [ ! -d "$(VENV)" ]; then \
-		echo "🛠️ Creating virtual environment..."; \
+		echo "🛠️  Creating virtual environment..."; \
 		$(PYTHON) -m venv $(VENV); \
 		echo "✅ Venv created successfully"; \
 		echo ""; \

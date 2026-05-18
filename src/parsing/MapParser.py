@@ -55,7 +55,7 @@ class MapParser:
                     if ":" not in line:
                         raise MapParserError(f"Invalid format on line {i}.")
 
-                    # ---------------Identify line type-------------
+                    # Identify line type
                     if line.startswith("nb_drones:"):
                         self.parse_nb_drones(line)
 
