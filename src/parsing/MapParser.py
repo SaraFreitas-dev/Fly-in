@@ -29,7 +29,6 @@ class MapParser:
         """
         Check if all the mandatory keys are present and uncommented
         From the txt file (map)
-        If not: raise an error
         """
         if self.nb_drones <= 0:
             raise MapParserError("Missing nb_drones in the map file.")
@@ -80,8 +79,6 @@ class MapParser:
         Parse the number of drones from the map file.
         Validate that:
         - the value exists, is a valid integer and is greater than 0
-        Raise MapParserError:
-                If the drone count is missing or invalid.
         """
         if self.nb_drones > 0:
             raise MapParserError("Duplicate nb_drones definition.")
@@ -107,7 +104,6 @@ class MapParser:
         - the zone name is unique
         - the coordinates are valid integers
         - the coordinates are not duplicated
-        Raise MapParserError: If the zone definition is invalid.
         """
         key, value = line.split(':', 1)  # maxsplit=1
         value = value.strip()
@@ -169,14 +165,11 @@ class MapParser:
     def parse_connection(self, line: str) -> None:
         """
         Parse a connection between two zones.
-
         Validate that:
         - the connection format is valid
         - both zones exist
         - self-connections are not allowed
         - duplicate connections are not created
-        Store: self.connections
-        Raise MapParserError: If the connection is invalid.
         """
         _, value = line.split(':', 1)  # maxsplit=1
         value = value.strip()
@@ -235,7 +228,6 @@ class MapParser:
     def parse_metadata(self, line: str) -> dict[str, str | int]:
         """
         Parse metadata and special commands from the map file.
-        Raise MapParserError: If the metadata format is invalid.
         """
         clean_line = line.split(' ')
         metadata_dict: dict[str, str] = {}
