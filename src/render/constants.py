@@ -41,11 +41,12 @@ MOVEMENT_COSTS: dict[str, int] = {
 }
 
 # =========================================================
-# SIMULATION
+# STATE
 # =========================================================
 
-TRANSIT_STATE: str = "TRANSIT"
-DELIVERED_STATE: str = "DELIVERED"
+DELIVERED_STATE = "delivered"
+WAITING_STATE = "waiting"
+TRANSIT_STATE = "transit"
 
 # =========================================================
 # ANSI COLORS

@@ -1,34 +1,33 @@
 
+3️⃣ bfs_shortest_path()
 
-# 3️⃣ bfs_shortest_path()
-
-=
-Use BFS to find the shortest valid path.
-
----
+THIS is the next major step.
 
 =
-BFS explores:
-
-* layer by layer
-* shortest first
-* avoids infinite loops
-* avoids revisiting visited nodes
-
----
+Use BFS to find shortest valid path.
 
 =
-```text
+BFS must:
+
+avoid blocked zones
+avoid revisiting zones
+explore shortest routes first
+
+=
+
 CREATE queue
+
 CREATE visited set
+
 CREATE parent dictionary
 
-ADD start zone to queue
-MARK start as visited
+ADD start to queue
+
+MARK start visited
 
 WHILE queue not empty:
 
-    current = queue.pop_left()
+    current = pop_left()
 
     IF current == goal:
         reconstruct path
@@ -36,141 +35,204 @@ WHILE queue not empty:
 
     FOR each connected zone:
 
+        GET zone object
+
+        IF zone is blocked:
+            skip
+
         IF not visited:
 
-            mark visited
-            save parent
-            add to queue
-```
+            MARK visited
 
----
+            SAVE parent
 
-# 4️⃣ reconstruct_path()
+            ADD to queue
+4️⃣ reconstruct_path()
 
 =
-Rebuild the path after BFS reaches the goal.
-
----
+Rebuild final path using BFS parent dictionary.
 
 =
-BFS stores:
 
-```python
-parent["roof2"] = "roof1"
-```
+goal <- wp2 <- wp1 <- start
 
-So we backtrack:
+becomes:
 
-```text
-goal
-↓
-roof2
-↓
-roof1
-↓
-hub
-```
-
-Then reverse the path.
-
----
+start -> wp1 -> wp2 -> goal
 
 =
-```text
-START from goal
+
+CREATE empty path
+
+SET current = goal
 
 WHILE current exists:
 
-    add current to path
+    ADD current to path
+
     current = parent[current]
 
 REVERSE path
+
 RETURN path
-```
+5️⃣ calculate_path_cost()
 
----
+VERY important because of:
 
-=
-The BFS should ignore blocked zones.
-
----
-
-=
-```text
-IF zone_type == blocked:
-    skip
-```
-
----
-
-# ⚠ Restricted Zones
-
-Possible future behavior:
-
-* avoid if possible
-* higher movement cost
-* limited capacity
-
-For first version:
-
-```text
-Treat as normal zones
-```
-
----
+restricted
+priority
+weighted turns
 
 =
-```python
-[
-    "hub",
-    "corridorA",
-    "tunnelB",
-    "goal"
-]
-```
-
----
+Calculate total movement cost of a path.
 
 =
-The simulator will later:
 
-```text
-move drone step-by-step through this list
-```
+SET total_cost = 0
 
-Example:
+FOR each zone in path:
 
-```text
-Turn 1 -> corridorA
-Turn 2 -> tunnelB
-Turn 3 -> goal
-```
+    GET zone type
 
+    ADD movement cost
 
-## Phase 3
+RETURN total_cost
+6️⃣ generate_drone_paths()
 
-✅ bfs_shortest_path()
+=
+Generate path for every drone.
 
----
+=
 
-## Phase 4
+FOR each drone:
 
-✅ reconstruct_path()
+    CALL bfs_shortest_path()
 
----
+    STORE path inside drone
+7️⃣ Start Simulator class
 
-## Phase 5
+Right now it's empty.
 
-✅ test unreachable maps
+This becomes:
 
----
+THE CORE OF THE PROJECT
 
-## Phase 6
+=
+Controls all simulation turns and drone movement.
 
-✅ simulator
+=
 
----
+Simulator
+│
+├── drones
+├── zones
+├── current_turn
+├── active_drones
+└── delivered_drones
+8️⃣ simulate_turn()
 
-## Phase 7
+=
+Simulate one complete turn.
 
-✅ Pillow visualizer bonus
+=
+
+FOR each drone:
+
+    IF drone delivered:
+        continue
+
+    CHECK next zone
+
+    CHECK occupancy rules
+
+    CHECK connection capacity
+
+    MOVE drone if valid
+
+    OTHERWISE wait
+9️⃣ Occupancy system
+
+VERY important.
+
+Subject rules:
+
+max_drones
+simultaneous movement
+capacity checks
+
+=
+Checks if drones can enter zones.
+
+=
+
+FOR target zone:
+
+    COUNT drones inside
+
+    IF capacity exceeded:
+
+        movement invalid
+🔟 Restricted movement system
+
+THIS is one of the hardest parts.
+
+Because:
+
+restricted = 2 turns
+drone occupies connection during transit
+
+=
+Restricted zones require multi-turn movement.
+
+=
+
+IF next zone is restricted:
+
+    SET drone state = TRANSIT
+
+    OCCUPY connection
+
+    WAIT 2 turns
+
+    ARRIVE automatically
+1️⃣1️⃣ Connection capacity system
+
+=
+Prevent too many drones from using same connection.
+
+=
+
+COUNT drones using connection
+
+IF max_link_capacity exceeded:
+
+    block movement
+1️⃣2️⃣ Turn output
+
+Subject requires:
+
+D1-roof1 D2-corridorA
+
+=
+Display movements for current turn.
+
+=
+
+FOR each moving drone:
+
+    PRINT:
+        D<ID>-<destination>
+1️⃣3️⃣ Final simulation loop
+
+=
+Run simulation until all drones delivered.
+
+=
+
+WHILE drones still active:
+
+    simulate_turn()
+
+    print movements
+
+    increment turn

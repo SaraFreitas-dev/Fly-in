@@ -38,4 +38,18 @@ class Connection:
 
 
 class Drone:
-    pass
+    """Represents one drone moving through the map"""
+    def __init__(
+        self,
+        drone_id: int,
+        start_zone: str,
+        end_zone: str
+    ) -> None:
+
+        self.drone_id = drone_id
+        self.start_zone = start_zone
+        self.end_zone = end_zone
+        self.current_zone = start_zone
+        self.path: list[str] = []
+        self.current_step: int = 0
+        self.delivered: bool = False
