@@ -20,7 +20,7 @@ def fly_in() -> None:
 
         path = PathFinder(parser.zones, parser.connections)
         path.build_connected_zones_map()
-        path.get_connected_zones("waypoint2")
+        path.get_zone_cost("waypoint2")
 
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)

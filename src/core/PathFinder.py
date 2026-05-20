@@ -1,4 +1,7 @@
 from src.core.models import Zone, Connection
+from src.render.constants import (ZONE_BLOCKED, ZONE_DEFAULT,
+                              ZONE_NORMAL, ZONE_PRIORITY,
+                              ZONE_RESTRICTED, MOVEMENT_COSTS)
 
 
 class PathFinderError(Exception):
@@ -52,5 +55,11 @@ class PathFinder():
         zone_lst: list[str] = []
         for value in self.connected_zones[zone]:
             zone_lst.append(value)
-        print(zone_lst)
         return zone_lst
+
+    def get_zone_cost(self, neighbor: str) -> int:
+        """Checks the cost to move to the next zone"""
+        if neighbor not in self.zones:
+                raise PathFinderError(f"The zone {neighbor} does not exist.")
+        neighbor_zone: Zone = self.zones[neighbor]
+        return MOVEMENT_COSTS[neighbor_zone.zone_type]

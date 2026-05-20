@@ -141,7 +141,7 @@ class MapParser:
             # Check for the presence of metadata, else use the default values
             zone_type = metadata_dict.get("zone", ZONE_DEFAULT)
             color = metadata_dict.get("color", COLOR_DEFAULT)
-            max_drones = metadata_dict.get("max_drones", MAX_DRONES_DEFAULT)
+            max_drones = int(metadata_dict.get("max_drones", MAX_DRONES_DEFAULT))
             zone = Zone(name, x, y, zone_type, color, max_drones)
 
             # START / END

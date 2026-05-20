@@ -1,4 +1,10 @@
-def Dijkstra()
+build_connected_zones_map()
+    ↓
 
-    for zone in zone_lst:
-    
+get_connected_zones()
+    ↓
+
+get_zone_cost()
+    ↓
+
+dijkstra_shortest_path()

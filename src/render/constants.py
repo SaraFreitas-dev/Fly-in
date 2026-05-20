@@ -23,13 +23,6 @@ ZONE_RESTRICTED: str = "restricted"
 ZONE_PRIORITY: str = "priority"
 ZONE_BLOCKED: str = "blocked"
 
-VALID_ZONE_TYPES: set[str] = {
-    ZONE_NORMAL,
-    ZONE_RESTRICTED,
-    ZONE_PRIORITY,
-    ZONE_BLOCKED,
-}
-
 # =========================================================
 # MOVEMENT COSTS
 # =========================================================
@@ -38,6 +31,8 @@ MOVEMENT_COSTS: dict[str, int] = {
     ZONE_NORMAL: 1,
     ZONE_PRIORITY: 1,
     ZONE_RESTRICTED: 2,
+    ZONE_BLOCKED: -1,
+    ZONE_DEFAULT: 1
 }
 
 # =========================================================
