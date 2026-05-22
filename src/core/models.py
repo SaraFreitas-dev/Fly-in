@@ -52,4 +52,5 @@ class Drone:
         self.current_zone = start_zone
         self.path: list[str] = []
         self.current_step: int = 0
+        self.waiting_turns: int = 0
         self.delivered: bool = False

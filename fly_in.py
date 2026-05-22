@@ -2,6 +2,7 @@ import sys
 import traceback
 from src.parsing.MapParser import MapParser
 from src.core.PathFinder import PathFinder
+from src.core.Simulator import Simulator
 
 
 def fly_in() -> None:
@@ -20,7 +21,9 @@ def fly_in() -> None:
 
         path = PathFinder(parser.zones, parser.connections)
         path.build_connected_zones_map()
-        path.get_zone_cost("waypoint2")
+        
+        simul = Simulator(parser)
+        simul.create_drones()
 
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)

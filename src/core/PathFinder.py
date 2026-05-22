@@ -1,7 +1,6 @@
 from src.core.models import Zone, Connection
-from src.render.constants import (ZONE_BLOCKED, ZONE_DEFAULT,
-                              ZONE_NORMAL, ZONE_PRIORITY,
-                              ZONE_RESTRICTED, MOVEMENT_COSTS)
+from src.render.constants import MOVEMENT_COSTS
+import heapq
 
 
 class PathFinderError(Exception):
@@ -23,7 +22,7 @@ class PathFinder():
         self.zones = zones
         self.connections = connections
 
-    def build_connected_zones_map(self) -> dict[list[str]]:
+    def build_connected_zones_map(self) -> dict[str, list[str]]:
         """
         Checks for each zone which paths it can take
         For example:
@@ -51,7 +50,7 @@ class PathFinder():
         Returns all its connected neighbors
         """
         if zone not in self.connected_zones:
-            raise PathFinder(f"The zone {zone} does not exist.")
+            raise PathFinderError(f"The zone {zone} does not exist.")
         zone_lst: list[str] = []
         for value in self.connected_zones[zone]:
             zone_lst.append(value)
@@ -63,3 +62,9 @@ class PathFinder():
                 raise PathFinderError(f"The zone {neighbor} does not exist.")
         neighbor_zone: Zone = self.zones[neighbor]
         return MOVEMENT_COSTS[neighbor_zone.zone_type]
+
+def dijkstra_shortest_path(self, start: str, end: str) -> list[str]:
+    """
+    Calculate the shortest path from the start to the end zone
+    taking into considerantion the least cost possible
+    """
