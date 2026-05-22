@@ -63,8 +63,42 @@ class PathFinder():
         neighbor_zone: Zone = self.zones[neighbor]
         return MOVEMENT_COSTS[neighbor_zone.zone_type]
 
-def dijkstra_shortest_path(self, start: str, end: str) -> list[str]:
-    """
-    Calculate the shortest path from the start to the end zone
-    taking into considerantion the least cost possible
-    """
+    def dijkstra_shortest_path(self, start: str, end: str) -> dict[str, str]:
+        """
+        Calculate the shortest path from the start to the end zone
+        taking into considerantion the least cost possible
+        returns a dict of the directions taken (A -> B, B -> C, etc.)
+        """
+        try:
+            queue: list[tuple[int, str]] = []  # stores future possible routes
+            visited: set[str] = set()
+            parent: dict[str, str] = {}  # stores the prev and current nodes
+            costs: dict[str, int] = {}  # stores the cost of each neighbor for comparison
+
+            heapq.heappush(queue, (0, start))
+
+            costs[start] = 0
+            while queue:
+                current_cost, current_zone = heapq.heappop(queue)
+                if current_zone in visited:
+                    continue
+                neighbors = self.get_connected_zones(current_zone)
+                visited.add(current_zone)
+
+                for neighbor in neighbors:
+                    zone_object = self.zones[neighbor]
+                    move_cost = MOVEMENT_COSTS[zone_object.zone_type]
+                    new_cost = current_cost + move_cost
+
+                    if (neighbor not in costs) or (new_cost < costs[neighbor]):
+                        costs[neighbor] = new_cost
+                        parent[neighbor] = current_zone
+                        heapq.heappush(queue, (new_cost, neighbor))
+
+                if current_zone == end:
+                    break
+                return parent
+    
+        except PathFinderError:
+            raise PathFinderError("dijkstra_shortest_path error.")
+            

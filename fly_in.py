@@ -21,6 +21,11 @@ def fly_in() -> None:
 
         path = PathFinder(parser.zones, parser.connections)
         path.build_connected_zones_map()
+
+        result = path.dijkstra_shortest_path(
+            parser.start_zone.name,
+            parser.end_zone.name)
+        print(result)
         
         simul = Simulator(parser)
         simul.create_drones()
