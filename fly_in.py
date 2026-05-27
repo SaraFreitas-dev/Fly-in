@@ -19,16 +19,16 @@ def fly_in() -> None:
         parser = MapParser(file_path)
         parser.parse_map()
 
-        path = PathFinder(parser.zones, parser.connections)
-        path.build_connected_zones_map()
-
-        result = path.dijkstra_shortest_path(
-            parser.start_zone.name,
-            parser.end_zone.name)
-        print(result)
-        
         simul = Simulator(parser)
+
         simul.create_drones()
+        simul.assign_paths()
+
+        sim_result = simul.simulate_turns()
+
+        for turn, moves in sim_result.items():
+            print(f"Turn {turn}")
+            print(" ".join(moves))
 
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)

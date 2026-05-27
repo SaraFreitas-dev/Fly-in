@@ -11,7 +11,7 @@ class PathFinderError(Exception):
 class PathFinder():
     """
     Uses get_connected_zones to see the near connections / neighbors
-    Uses BFS to find the shortest valid path
+    Uses Dijkstra to find the shortest valid path
     between the start and end zones.
     Stores and returns discovered paths
     Returns the shortest one (valid path)
@@ -56,18 +56,12 @@ class PathFinder():
             zone_lst.append(value)
         return zone_lst
 
-    def get_zone_cost(self, neighbor: str) -> int:
-        """Checks the cost to move to the next zone"""
-        if neighbor not in self.zones:
-                raise PathFinderError(f"The zone {neighbor} does not exist.")
-        neighbor_zone: Zone = self.zones[neighbor]
-        return MOVEMENT_COSTS[neighbor_zone.zone_type]
-
-    def dijkstra_shortest_path(self, start: str, end: str) -> dict[str, str]:
+    def dijkstra_shortest_path(self, start: str, end: str) -> list[str]:
         """
         Calculate the shortest path from the start to the end zone
-        taking into considerantion the least cost possible
-        returns a dict of the directions taken (A -> B, B -> C, etc.)
+        taking into considerantion the least cost possible and the priority zones
+        Reverses the path (start to end)
+        returns a list of the directions taken (A -> B, B -> C, etc.)
         """
         try:
             queue: list[tuple[int, str]] = []  # stores future possible routes
@@ -90,15 +84,53 @@ class PathFinder():
                     move_cost = MOVEMENT_COSTS[zone_object.zone_type]
                     new_cost = current_cost + move_cost
 
-                    if (neighbor not in costs) or (new_cost < costs[neighbor]):
+                    # Ignore blocked zones
+                    if zone_object.zone_type == "blocked":
+                        continue
+
+                    # Better route found
+                    if (
+                        (neighbor not in costs)
+                        or
+                        (new_cost < costs[neighbor])
+                    ):
                         costs[neighbor] = new_cost
+                        parent[neighbor] = current_zone
+                        heapq.heappush(queue, (new_cost, neighbor))
+
+                    # Same cost but priority zone preferred
+                    elif (
+                        new_cost == costs[neighbor]
+                        and
+                        zone_object.zone_type == "priority"
+                    ):
                         parent[neighbor] = current_zone
                         heapq.heappush(queue, (new_cost, neighbor))
 
                 if current_zone == end:
                     break
-                return parent
+            return self.reconstruct_path(parent, start, end)
     
         except PathFinderError:
             raise PathFinderError("dijkstra_shortest_path error.")
-            
+
+    @staticmethod
+    def reconstruct_path(parent: dict[str, str], start: str, end: str) -> list[str]:
+        """Reconstruct the path (revert it from start to end)"""
+        try:
+            current = end
+            path: list[str] = []
+
+            if end == start:
+                return [start]
+
+            while current != start:
+                path.append(current)
+                current = parent[current]
+
+            path.append(start)
+            # Get the result from the start to the exit point
+            path.reverse()
+            return path
+        except (KeyError, ValueError):
+            return []

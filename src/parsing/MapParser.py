@@ -142,6 +142,9 @@ class MapParser:
             zone_type = metadata_dict.get("zone", ZONE_DEFAULT)
             color = metadata_dict.get("color", COLOR_DEFAULT)
             max_drones = int(metadata_dict.get("max_drones", MAX_DRONES_DEFAULT))
+            if max_drones < 1:
+                raise MapParserError(
+                    f"Zone '{name}' must allow at least 1 drone.")
             zone = Zone(name, x, y, zone_type, color, max_drones)
 
             # START / END
@@ -229,7 +232,7 @@ class MapParser:
         """
         Parse metadata and special commands from the map file.
         """
-        clean_line = line.split(' ')
+        clean_line = line.split()
         metadata_dict: dict[str, str] = {}
 
         try:
