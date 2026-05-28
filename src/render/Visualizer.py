@@ -4,9 +4,9 @@ from src.render.constants import (SYMBOL_PRIORITY,
                                   SYMBOL_RESTRICTED,
                                   SYMBOL_BLOCKED, SYMBOL_NORMAL,
                                   ANSI_COLORS, COLOR_DEFAULT,
-                                  ANSI_RESET, ANSI_BOLD,
+                                  ANSI_RESET, ANSI_BOLD, ANSI_BLACK,
                                   SYMBOL_DRONE, SYMBOL_CONNECTION,
-                                  SYMBOL_END)
+                                  SYMBOL_END, TURN_LIMITS)
 
 
 class Visualizer:
@@ -45,10 +45,10 @@ class Visualizer:
 
     def print_simulation(self) -> None:
         print(f"\n{ANSI_BOLD}══════════════════════════════════════\n"
-              "FLY-IN DRONE SIMULATION\n"
-              F"══════════════════════════════════════{ANSI_RESET}")
+              "       FLY-IN DRONE SIMULATION\n"
+              f"══════════════════════════════════════{ANSI_RESET}")
         for turn, moves in self.simul_result.items():
-            print(f"\n{ANSI_BOLD}Turn {turn}{ANSI_RESET}")
+            print(f"\n\033[44mTurn {turn}{ANSI_RESET}")
             for move in moves:
                 drone_id, zone_name = move.split("-")
                 zone = self.zones[zone_name]
@@ -58,8 +58,8 @@ class Visualizer:
                 f"{SYMBOL_DRONE} "
                 f"{drone_id} "
                 f"{SYMBOL_CONNECTION} "
+                f"{colored_zone}",
                 f"{zone_symbol}"
-                f"{colored_zone}"
             )
         self.print_exit_report()
     
@@ -73,11 +73,14 @@ class Visualizer:
         file_name = os.path.basename(path).split(".txt")[0]
         folder_name = os.path.basename(os.path.dirname(path))
         total_turns = len(self.simul_result)
+        max_turns_allowed = TURN_LIMITS[folder_name][file_name]
 
-        print(f"\n{ANSI_BOLD}══════════════════════════════════════\n"
-              "FLY-IN DRONE SIMULATION REPORT\n\n"
-              f"Level: {folder_name}\n"
-              f"The path was {file_name}\n"
-              f"There where a total of {len(self.drones)} drones\n"
-              f"The simulation did a total of {total_turns} turns\n"
-              f"══════════════════════════════════════{ANSI_RESET}\n")
+        print("\n═════════════════════════════════════════\n"
+              f"{ANSI_BOLD} 📌 FLY-IN DRONE SIMULATION REPORT 📌{ANSI_RESET}\n\n"
+              f" {ANSI_BLACK}Level: {folder_name}\n"
+              f" The path: {file_name}\n"
+              " Max turns allowed to hit the target: "
+              f"{max_turns_allowed}\n\n{ANSI_RESET}"
+              f" There where a total of {len(self.drones)} drones\n"
+              f" The simulation did a total of {total_turns} turns\n"
+              f"═════════════════════════════════════════\n")

@@ -3,8 +3,8 @@ PYTHON = python3
 VENV = venv
 PIP = $(VENV)/bin/python3 -m pip
 
-LEVEL = easy
-MAP ?= 01_linear_path.txt
+LEVEL = challenger
+MAP ?= 01_the_impossible_dream.txt
 
 all: install run
 

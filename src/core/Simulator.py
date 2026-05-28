@@ -62,7 +62,6 @@ class Simulator:
     def handle_waiting(self, drone: Drone) -> bool:
         """Checks if the drone must wait a turn"""
         if drone.waiting_turns > 0:
-            print(f"{drone.drone_id} waiting...")
             drone.waiting_turns -= 1
             return True
         return False
