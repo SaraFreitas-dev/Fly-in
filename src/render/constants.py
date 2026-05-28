@@ -35,26 +35,19 @@ MOVEMENT_COSTS: dict[str, int] = {
     ZONE_DEFAULT: 1
 }
 
-# =========================================================
-# STATE
-# =========================================================
-
-DELIVERED_STATE = "delivered"
-WAITING_STATE = "waiting"
-TRANSIT_STATE = "transit"
 
 # =========================================================
 # ANSI COLORS
 # =========================================================
 
 ANSI_RESET: str = "\033[0m"
-
 ANSI_RED: str = "\033[31m"
 ANSI_GREEN: str = "\033[32m"
 ANSI_YELLOW: str = "\033[33m"
-ANSI_BLUE: str = "\033[34m"
+ANSI_BLUE: str = "\033[94m"
 ANSI_CYAN: str = "\033[36m"
 ANSI_WHITE: str = "\033[37m"
+ANSI_BOLD: str = "\033[1m"
 
 # =========================================================
 # VISUAL COLORS
@@ -72,7 +65,7 @@ COLOR_GRAY: str = "gray"
 # COLOR TO ANSI MAP
 # =========================================================
 
-COLOR_TO_ANSI: dict[str, str] = {
+ANSI_COLORS: dict[str, str] = {
     COLOR_RED: ANSI_RED,
     COLOR_GREEN: ANSI_GREEN,
     COLOR_YELLOW: ANSI_YELLOW,
@@ -89,18 +82,17 @@ COLOR_TO_ANSI: dict[str, str] = {
 # TERMINAL SYMBOLS - UNICODE
 # =========================================================
 
-SYMBOL_DRONE: str = "☠"
+SYMBOL_DRONE: str = "🛸"
+SYMBOL_END: str = "E ⚑ "
 
-SYMBOL_START: str = "S ⚐"
-SYMBOL_END: str = "E ⚑"
+SYMBOL_NORMAL: str = "N ⛶  "
+SYMBOL_PRIORITY: str = "P ⚠  "
+SYMBOL_RESTRICTED: str = "R ⛞  "
+SYMBOL_BLOCKED: str = "⛔"
 
-SYMBOL_NORMAL: str = "⛶"
-SYMBOL_PRIORITY: str = "⚠"
-SYMBOL_RESTRICTED: str = "⛞"
-SYMBOL_BLOCKED: str = "⛌ ⛝ ⛔"
-
-SYMBOL_CONNECTION: str = "→  ➤"
-
-SYMBOL_WAIT: str = "W ❗"
+SYMBOL_CONNECTION: str = "➤ "
+SYMBOL_WAIT: str = "Waiting...❗"
 SYMBOL_ERROR: str = "💀"
-SYMBOL_SUCCESS: str = "✔ ✅"
+SYMBOL_SUCCESS: str = "✅"
+
+BACKUPS: str = "☠✔⚐"

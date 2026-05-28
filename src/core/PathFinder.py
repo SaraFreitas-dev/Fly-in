@@ -41,7 +41,7 @@ class PathFinder():
             
             connected_zones[zone_a].append(zone_b)
             connected_zones[zone_b].append(zone_a)
-            self.connected_zones = connected_zones
+        self.connected_zones = connected_zones
         return self.connected_zones
     
     def get_connected_zones(self, zone: str) -> list[str]:
@@ -56,7 +56,8 @@ class PathFinder():
             zone_lst.append(value)
         return zone_lst
 
-    def dijkstra_shortest_path(self, start: str, end: str) -> list[str]:
+    def dijkstra_shortest_path(self, start: str, end: str,
+                               occupied_zones: dict[str, list]) -> list[str]:
         """
         Calculate the shortest path from the start to the end zone
         taking into considerantion the least cost possible and the priority zones
@@ -81,8 +82,11 @@ class PathFinder():
 
                 for neighbor in neighbors:
                     zone_object = self.zones[neighbor]
-                    move_cost = MOVEMENT_COSTS[zone_object.zone_type]
-                    new_cost = current_cost + move_cost
+                    drones_in_zone = len(
+                        occupied_zones.get(neighbor, []))
+                    move_cost = (MOVEMENT_COSTS[zone_object.zone_type] +
+                                 drones_in_zone)
+                    new_cost = current_cost + move_cost 
 
                     # Ignore blocked zones
                     if zone_object.zone_type == "blocked":
@@ -111,8 +115,8 @@ class PathFinder():
                     break
             return self.reconstruct_path(parent, start, end)
     
-        except PathFinderError:
-            raise PathFinderError("dijkstra_shortest_path error.")
+        except PathFinderError as e:
+            raise PathFinderError(f"dijkstra_shortest_path error: {e}.")
 
     @staticmethod
     def reconstruct_path(parent: dict[str, str], start: str, end: str) -> list[str]:

@@ -1,7 +1,7 @@
 import sys
 import traceback
 from src.parsing.MapParser import MapParser
-from src.core.PathFinder import PathFinder
+from src.render.Visualizer import Visualizer
 from src.core.Simulator import Simulator
 
 
@@ -20,15 +20,9 @@ def fly_in() -> None:
         parser.parse_map()
 
         simul = Simulator(parser)
-
-        simul.create_drones()
-        simul.assign_paths()
-
-        sim_result = simul.simulate_turns()
-
-        for turn, moves in sim_result.items():
-            print(f"Turn {turn}")
-            print(" ".join(moves))
+        
+        visualizer = Visualizer(simul)
+        visualizer.print_simulation()
 
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
@@ -38,3 +32,4 @@ def fly_in() -> None:
 
 if __name__ == "__main__":
     fly_in()
+
