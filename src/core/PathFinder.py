@@ -38,12 +38,12 @@ class PathFinder():
                 connected_zones[zone_a] = []
             if zone_b not in connected_zones:
                 connected_zones[zone_b] = []
-            
+
             connected_zones[zone_a].append(zone_b)
             connected_zones[zone_b].append(zone_a)
         self.connected_zones = connected_zones
         return self.connected_zones
-    
+
     def get_connected_zones(self, zone: str) -> list[str]:
         """
         Return all reachable zones connected to one zone meaning it
@@ -60,7 +60,8 @@ class PathFinder():
                                occupied_zones: dict[str, list]) -> list[str]:
         """
         Calculate the shortest path from the start to the end zone
-        taking into considerantion the least cost possible and the priority zones
+        taking into considerantion the least cost possible
+        and the priority zones
         Reverses the path (start to end)
         returns a list of the directions taken (A -> B, B -> C, etc.)
         """
@@ -68,7 +69,7 @@ class PathFinder():
             queue: list[tuple[int, str]] = []  # stores future possible routes
             visited: set[str] = set()
             parent: dict[str, str] = {}  # stores the prev and current nodes
-            costs: dict[str, int] = {}  # stores the cost of each neighbor for comparison
+            costs: dict[str, int] = {}  # cost of each neighbor for comparison
 
             heapq.heappush(queue, (0, start))
 
@@ -86,7 +87,7 @@ class PathFinder():
                         occupied_zones.get(neighbor, []))
                     move_cost = (MOVEMENT_COSTS[zone_object.zone_type] +
                                  drones_in_zone)
-                    new_cost = current_cost + move_cost 
+                    new_cost = current_cost + move_cost
 
                     # Ignore blocked zones
                     if zone_object.zone_type == "blocked":
@@ -114,12 +115,13 @@ class PathFinder():
                 if current_zone == end:
                     break
             return self.reconstruct_path(parent, start, end)
-    
+
         except PathFinderError as e:
             raise PathFinderError(f"dijkstra_shortest_path error: {e}.")
 
     @staticmethod
-    def reconstruct_path(parent: dict[str, str], start: str, end: str) -> list[str]:
+    def reconstruct_path(parent: dict[str, str],
+                         start: str, end: str) -> list[str]:
         """Reconstruct the path (revert it from start to end)"""
         try:
             current = end

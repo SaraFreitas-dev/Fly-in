@@ -20,7 +20,7 @@ def fly_in() -> None:
         parser.parse_map()
 
         simul = Simulator(parser)
-        
+
         visualizer = Visualizer(simul)
         visualizer.print_simulation()
 
@@ -32,4 +32,3 @@ def fly_in() -> None:
 
 if __name__ == "__main__":
     fly_in()
-

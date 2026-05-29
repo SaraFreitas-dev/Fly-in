@@ -108,7 +108,7 @@ class MapParser:
         key, value = line.split(':', 1)  # maxsplit=1
         value = value.strip()
 
-        metadata_dict: dict[str, str] = {}
+        metadata_dict: dict[str, str | int] = {}
 
         if '[' in value:
             main_data, metadata = value.split('[', 1)
@@ -123,9 +123,9 @@ class MapParser:
             if len(main_data_v) != 3:
                 raise MapParserError(f"Missing required values for {key}.")
 
-            name, x, y = main_data_v
-            x = int(x)
-            y = int(y)
+            name = main_data_v[0]
+            x = int(main_data_v[1])
+            y = int(main_data_v[2])
 
             # DUPLICATE NAME
             if name in self.zones:
@@ -139,9 +139,10 @@ class MapParser:
 
             # CREATE ZONE
             # Check for the presence of metadata, else use the default values
-            zone_type = metadata_dict.get("zone", ZONE_DEFAULT)
-            color = metadata_dict.get("color", COLOR_DEFAULT)
-            max_drones = int(metadata_dict.get("max_drones", MAX_DRONES_DEFAULT))
+            zone_type = str(metadata_dict.get("zone", ZONE_DEFAULT))
+            color = str(metadata_dict.get("color", COLOR_DEFAULT))
+            max_drones = int(metadata_dict.get("max_drones",
+                                               MAX_DRONES_DEFAULT))
             if max_drones < 1:
                 raise MapParserError(
                     f"Zone '{name}' must allow at least 1 drone.")
@@ -177,7 +178,7 @@ class MapParser:
         _, value = line.split(':', 1)  # maxsplit=1
         value = value.strip()
 
-        metadata_dict: dict[str, str] = {}
+        metadata_dict: dict[str, str | int] = {}
 
         if '[' in value:
             c_data, metadata = value.split('[', 1)
@@ -233,7 +234,7 @@ class MapParser:
         Parse metadata and special commands from the map file.
         """
         clean_line = line.split()
-        metadata_dict: dict[str, str] = {}
+        metadata_dict: dict[str, str | int] = {}
 
         try:
             for c in clean_line:

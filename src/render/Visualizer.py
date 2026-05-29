@@ -1,5 +1,6 @@
 import os
 from src.core.Simulator import Simulator
+from src.core.models import Zone
 from src.render.constants import (SYMBOL_PRIORITY,
                                   SYMBOL_RESTRICTED,
                                   SYMBOL_BLOCKED, SYMBOL_NORMAL,
@@ -22,8 +23,9 @@ class Visualizer:
         self.simul_result = simulator.simulate_turns()
         self.parser = simulator.parser
 
-    def get_zone_symbol(self, zone: str) -> str:
+    def get_zone_symbol(self, zone: Zone) -> str:
         """Get the zone symbols from constants.py"""
+        assert self.simulator.end_zone is not None
         if zone.name == self.simulator.end_zone.name:
             return SYMBOL_END
         if zone.zone_type == "priority":
@@ -33,7 +35,7 @@ class Visualizer:
         if zone.zone_type == "blocked":
             return SYMBOL_BLOCKED
         return SYMBOL_NORMAL
-    
+
     def color_text(self, text: str, color: str) -> str:
         """
         Use the color requested on the txt file
@@ -55,14 +57,13 @@ class Visualizer:
                 colored_zone = self.color_text(zone_name, zone.color)
                 zone_symbol = self.get_zone_symbol(zone)
                 print(
-                f"{SYMBOL_DRONE} "
-                f"{drone_id} "
-                f"{SYMBOL_CONNECTION} "
-                f"{colored_zone}",
-                f"{zone_symbol}"
-            )
+                    f"{SYMBOL_DRONE} "
+                    f"{drone_id} "
+                    f"{SYMBOL_CONNECTION} "
+                    f"{colored_zone}",
+                    f"{zone_symbol}")
         self.print_exit_report()
-    
+
     def print_exit_report(self) -> None:
         """
         Prints the exit banner with the info

@@ -41,7 +41,7 @@ class Drone:
     """Represents one drone moving through the map"""
     def __init__(
         self,
-        drone_id: int,
+        drone_id: str,
         start_zone: str,
         end_zone: str
     ) -> None:

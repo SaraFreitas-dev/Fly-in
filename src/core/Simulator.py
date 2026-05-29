@@ -23,21 +23,24 @@ class Simulator:
         self.drones: list[Drone] = []
         self.current_turn: int = 0
         self.occupied_zones: dict[str, list[Drone]] = {}
-        self.occupied_links: dict[str, tuple[str, str], list[Drone]] = {}
+        self.occupied_links: dict[tuple[str, str], list[Drone]] = {}
 
     def create_drones(self) -> list[Drone]:
         """
         Generate an id for each drone based
         on the total drone amount
         """
+        assert self.start_zone is not None
+        assert self.end_zone is not None
         for i in range(self.nb_drones):
             drone_id = "D" + str(i + 1)
             drone = Drone(drone_id, self.start_zone.name, self.end_zone.name)
             self.drones.append(drone)
         return self.drones
-    
+
     def can_move_to_zone(self, next_zone: str) -> bool:
         """Check if the zone is occupied"""
+        assert self.end_zone is not None
         zone_object = self.zones[next_zone]
         drones_in_zone = self.occupied_zones.get(next_zone, [])
 
@@ -45,11 +48,14 @@ class Simulator:
             if len(drones_in_zone) >= zone_object.max_drones:
                 return False
         return True
-    
+
     def can_use_link(self, current_zone: str,
                      next_zone: str) -> bool:
         """Check if the connection can be used"""
-        link_name = tuple(sorted([current_zone, next_zone]))
+        if current_zone < next_zone:
+            link_name: tuple[str, str] = (current_zone, next_zone)
+        else:
+            link_name = (next_zone, current_zone)
         for connection in self.connections:
             connection_link = tuple(
                 sorted([connection.zone_a, connection.zone_b]))
@@ -58,20 +64,22 @@ class Simulator:
                 if len(drones_in_link) >= connection.max_link_capacity:
                     return False
         return True
-    
+
     def handle_waiting(self, drone: Drone) -> bool:
         """Checks if the drone must wait a turn"""
         if drone.waiting_turns > 0:
             drone.waiting_turns -= 1
             return True
         return False
-    
+
     def move_drone(self, drone: Drone,
                    next_zone: str) -> None:
         """
         Moves the drone to the next zone
         and updates occupancy states
         """
+        assert self.end_zone is not None
+
         # Free previous occupied zone
         if drone.current_zone in self.occupied_zones:
             self.occupied_zones[drone.current_zone].remove(drone)
@@ -83,9 +91,8 @@ class Simulator:
 
         if link not in self.occupied_links:
             self.occupied_links[link] = []
-
         self.occupied_links[link].append(drone)
-    
+
         # Move the drone forward in the path
         drone.current_zone = next_zone
 
@@ -93,18 +100,19 @@ class Simulator:
             if next_zone not in self.occupied_zones:
                 self.occupied_zones[next_zone] = []
             self.occupied_zones[next_zone].append(drone)
-        
+
         # Free previous connection link
         self.occupied_links[link].remove(drone)
         if not self.occupied_links[link]:
             self.occupied_links.pop(link)
-    
+
     def simulate_turns(self) -> dict[int, list[str]]:
         """
         Calls all previous functions and
         Simulates turns for each drone
         Until all are delivered to the end_zone
         """
+        assert self.end_zone is not None
         simul_result: dict[int, list[str]] = {}
 
         while not all(drone.delivered for drone in self.drones):
