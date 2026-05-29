@@ -46,6 +46,9 @@ class Visualizer:
         return f"{ansi_color}{text}{ANSI_RESET}"
 
     def print_simulation(self) -> None:
+        """
+        Prints the simulation with the predefined colors, etc
+        """
         print(f"\n{ANSI_BOLD}══════════════════════════════════════\n"
               "       FLY-IN DRONE SIMULATION\n"
               f"══════════════════════════════════════{ANSI_RESET}")

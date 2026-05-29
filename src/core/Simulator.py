@@ -16,8 +16,7 @@ class Simulator:
 
         self.pathfinder = PathFinder(
             self.zones,
-            self.connections
-        )
+            self.connections)
         self.pathfinder.build_connected_zones_map()
 
         self.drones: list[Drone] = []
@@ -39,7 +38,10 @@ class Simulator:
         return self.drones
 
     def can_move_to_zone(self, next_zone: str) -> bool:
-        """Check if the zone is occupied"""
+        """
+        Check if the zone is occupied at max capacity,
+        If its possible for the drone to move
+        """
         assert self.end_zone is not None
         zone_object = self.zones[next_zone]
         drones_in_zone = self.occupied_zones.get(next_zone, [])
@@ -51,14 +53,16 @@ class Simulator:
 
     def can_use_link(self, current_zone: str,
                      next_zone: str) -> bool:
-        """Check if the connection can be used"""
+        """Check if the connection can be used on that turn"""
         if current_zone < next_zone:
             link_name: tuple[str, str] = (current_zone, next_zone)
         else:
             link_name = (next_zone, current_zone)
+
         for connection in self.connections:
             connection_link = tuple(
                 sorted([connection.zone_a, connection.zone_b]))
+
             if connection_link == link_name:
                 drones_in_link = self.occupied_links.get(link_name, [])
                 if len(drones_in_link) >= connection.max_link_capacity:
@@ -131,11 +135,6 @@ class Simulator:
                     self.end_zone.name,
                     self.occupied_zones
                 )
-
-                if len(drone.path) < 2:
-                    drone.delivered = True
-                    continue
-
                 next_zone = drone.path[1]
 
                 # Check if the drone must wait

@@ -1,8 +1,3 @@
-"""
-constants.py
-Global constants used across the Fly-in project.
-"""
-
 from __future__ import annotations
 
 # =========================================================
