@@ -18,19 +18,20 @@ venv:
 		echo "📌 To activate the virtual environment run:"; \
 		echo "source $(VENV)/bin/activate"; \
 	else \
-		echo "⚠️ Venv already exists"; \
+		echo "\n⚠️ Venv already exists\n"; \
 	fi
 
 # INSTALL ALL REQUIREMENTS
 
 install: venv
-	@echo "📦 Installing requirements..."
+	@echo "\n📦 Installing requirements..."
 	@$(PIP) install --upgrade pip
 	@$(PIP) install -r requirements.txt
-	@echo "✅ Installation complete"
+	@echo "✅ Installation complete\n"
 
 # RUN THE GAME
 run:
+	rm -f assets/img/*
 	$(VENV)/bin/python3 $(NAME) assets/maps/$(LEVEL)/$(MAP)
 
 # DEBUGGER
@@ -39,7 +40,7 @@ debug:
 
 # CHECK FOR NORM ERRORS
 lint:
-	@echo "🔍 Running flake8 and mypy..."
+	@echo "\n🔍 Running flake8 and mypy..."
 	$(VENV)/bin/flake8 .
 	$(VENV)/bin/mypy . \
 		--warn-return-any \
@@ -58,16 +59,18 @@ lint-strict:
 
 # CLEANERS
 clean:
-	@echo "🧹 Cleaning cache files..."
+	@echo "\n🧹 Cleaning cache files..."
 	find . -name "__pycache__" -exec rm -rf {} +
 	find . -name "*.pyc" -delete
 	rm -rf .mypy_cache
-	@echo "✅ Partial clean complete"
+	@echo "\n✅ Partial clean complete\n"
 
 fclean: clean
-	@echo "💣 Removing virtual environment..."
+	@echo "\n💣 Removing virtual environment..."
 	rm -rf $(VENV)
-	@echo "✅ Full clean complete"
+	@echo "\n📸 Removing previous generated images..."
+	rm -f assets/img/*
+	@echo "\n✅ Full clean complete\n"
 
 re: fclean install
 
