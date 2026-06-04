@@ -4,7 +4,7 @@ VENV = venv
 PIP = $(VENV)/bin/python3 -m pip
 
 LEVEL = hard
-MAP ?= 02_capacity_hell.txt
+MAP ?= 01_maze_nightmare.txt
 
 all: install run
 

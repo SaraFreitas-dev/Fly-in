@@ -5,6 +5,7 @@ from src.render.constants import (PIL_COLORS, PIL_SYMBOLS)
 
 IMG_WIDTH = 1400
 IMG_HEIGHT = 900
+REPORT_HEIGHT = 150
 
 
 class ImageGenerator:
@@ -32,12 +33,100 @@ class ImageGenerator:
         min_y = min(zone.y for zone in self.zones.values())
         max_y = max(zone.y for zone in self.zones.values())
 
-        scale_x = (IMG_WIDTH - 200) / (max_x - min_x)
-        scale_y = (IMG_HEIGHT - 200) / (max_y - min_y)
+        width = max(max_x - min_x, 1)
+        height = max(max_y - min_y, 1)
+
+        scale_x = (IMG_WIDTH - 200) / width
+        scale_y = (IMG_HEIGHT - REPORT_HEIGHT - 100) / height
+
         scale = min(scale_x, scale_y)
 
         return scale, min_x, max_x, min_y, max_y
 
+    def draw_title(self, draw: ImageDraw) -> None:
+        """Show a simple title of the project"""
+        title_font = ImageFont.truetype(
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            24)
+        title = "FLY-IN SIMULATION"
+        bbox = draw.textbbox((0, 0), title, font=title_font)
+        title_width = bbox[2] - bbox[0]
+        
+        draw.text(((IMG_WIDTH - title_width) / 2, 20),
+                  title,
+                  fill="white",
+                  font=title_font)
+        draw.line([(100, 40), (500, 40)],
+                  fill=(80, 80, 80),
+                  width=1)
+        draw.line([(900, 40), (1300, 40)],
+                  fill=(80, 80, 80),
+                  width=1)
+
+    def draw_card(self,
+                  draw: ImageDraw,
+                  x: int, y: int,
+                  width: int, height: int,
+                  title: str, value: int | str,
+                  title_font: ImageFont,
+                  value_font: ImageFont):
+        draw.rounded_rectangle((x, y,
+                                x + width, y + height),
+                                radius=10,
+                                outline=(80, 80, 80),
+                                width=2)
+        draw.text((x + 15, y + 12),
+                title,
+                fill=(180, 180, 180),
+                font=title_font)
+
+        draw.text((x + 15, y + 50),
+                str(value),
+                fill="white",
+                font=value_font)
+
+    def draw_report(self, draw: ImageDraw) -> None:
+        """
+        Shows the simulation report banner
+        With info such as number of turns and status
+        """
+        draw.rectangle((0,
+                        IMG_HEIGHT - REPORT_HEIGHT,
+                        IMG_WIDTH,
+                        IMG_HEIGHT),
+                        fill=(20, 20, 20))
+        padding = 20
+        gap = 20
+
+        available_width = IMG_WIDTH - (padding * 2)
+        card_width = int((available_width - gap * 3) / 4)
+        card_height = REPORT_HEIGHT - 40
+        card_y = IMG_HEIGHT - REPORT_HEIGHT + 20
+        
+        cards = [
+            ("LEVEL", "easy"),
+            ("DRONES", "TEST"),
+            ("TURNS", len(self.simul_res)),
+            ("STATUS", "SUCCESS")
+        ]
+
+        title_font = ImageFont.truetype(
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            12)
+
+        value_font = ImageFont.truetype(
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            22)
+
+        for i, (title, value) in enumerate(cards):
+            x = padding + i * (card_width + gap)
+
+            self.draw_card(
+                draw, x, card_y,
+                card_width, card_height,
+                title, value,
+                title_font, value_font
+            )
 
     def draw_zones(self) -> None:
         """
@@ -50,13 +139,19 @@ class ImageGenerator:
         map_width = (max_x - min_x) * scale
         map_height = (max_y - min_y) * scale
         offset_x = (IMG_WIDTH - map_width) / 2
-        offset_y = (IMG_HEIGHT - map_height) / 2    
+        offset_y = (IMG_HEIGHT - REPORT_HEIGHT - map_height) / 2    
 
         # Create the frame base
         img = Image.new(
-            "RGB", (1400, 900), (50, 50, 50)
+            "RGB",(1400, 900), (25, 25, 35)
         )
         draw = ImageDraw.Draw(img)
+
+        # Title
+        self.draw_title(draw)
+
+        # Report banner
+        self.draw_report(draw)
 
         # Draw connections
         for connection in self.connections:
@@ -71,23 +166,53 @@ class ImageGenerator:
 
             start_point = (a_x, a_y)
             end_point = (b_x, b_y)
-            draw.line([start_point, end_point], fill="white", width=4)
+
+            # Lines - connections
+            draw.line([start_point, end_point], fill=(180, 180, 180), width=4)
 
         # Draw zones
         for zone in self.zones.values():
             zone_symbols = PIL_SYMBOLS.get(zone.zone_type, "X")
             x = (zone.x - min_x) * scale + offset_x
             y = (zone.y - min_y) * scale + offset_y
+
+            # Cirles - zones
+            zone_count = len(self.zones)
+            if zone_count <= 10:
+                radius = 35
+            elif zone_count <= 25:
+                radius = 25
+            else:
+                radius = 15
+
             draw.ellipse(
-                (x - 25, y - 25, x + 25, y + 25),
-                fill=PIL_COLORS.get(zone.color, "white")
+                (x - radius, y - radius,
+                 x + radius, y + radius),
+                fill=PIL_COLORS.get(zone.color, "white"),
+                outline="white",
+                width=3
             )
+
+            font_size = max(
+                12,
+                min(20, int(radius * 0.6)))
             font = ImageFont.truetype(
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf")
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                font_size)
+
+            label = f"[{zone_symbols}] {zone.name}"
+            bbox = draw.textbbox((0, 0), label, font=font)
+            text_width = bbox[2] - bbox[0]
+
+            # Text description - zones and zone types
+            if zone == self.start or zone == self.end:
+                color = "green"
+            else:
+                color = "white"
             draw.text(
-                (x - 20, y + 30),
-                (f"[{zone_symbols}] {zone.name}"),
-                fill="black",
+                (x - text_width / 2, y - radius - 30),
+                label,
+                fill=color,
                 font=font
             )
         
