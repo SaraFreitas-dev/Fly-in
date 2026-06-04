@@ -92,15 +92,45 @@ ANSI_COLORS: dict[str, str] = {
 }
 
 # =========================================================
+# FOR PILLOW
+# =========================================================
+
+PIL_COLORS: dict[str, str] = {
+    COLOR_RED: "red",
+    COLOR_GREEN: "green",
+    COLOR_YELLOW: "yellow",
+    COLOR_BLUE: "blue",
+    COLOR_PURPLE: "purple",
+    COLOR_DEFAULT: "white",
+    COLOR_GRAY: "gray",
+    COLOR_BLACK: "black",
+    COLOR_BROWN: "brown",
+    COLOR_ORANGE: "orange",
+    COLOR_MAROON: "maroon",
+    COLOR_GOLD: "gold",
+    COLOR_DARK_RED: "darkred",
+    COLOR_CRIMSON: "crimson"
+}
+
+PIL_SYMBOLS: dict[str, str] = {
+    "normal": "N",
+    "priority": "P",
+    "restricted": "R",
+    "blocked": "B",
+    "start": "S",
+    "end": "E"
+}
+
+# =========================================================
 # TERMINAL SYMBOLS - UNICODE
 # =========================================================
 
 SYMBOL_DRONE: str = "🛸"
 SYMBOL_END: str = "🏁"
 
-SYMBOL_NORMAL: str = "⛶ N"
-SYMBOL_PRIORITY: str = "⚠  P"
-SYMBOL_RESTRICTED: str = "⛞  R"
+SYMBOL_NORMAL: str = "🔲"
+SYMBOL_PRIORITY: str = "⭐"
+SYMBOL_RESTRICTED: str = "⚠️"
 SYMBOL_BLOCKED: str = "⛔"
 
 SYMBOL_CONNECTION: str = "➤"
@@ -132,3 +162,11 @@ TURN_LIMITS: dict[str, dict[str, int]] = {
         "01_the_impossible_dream": 45,
     }
 }
+
+
+# =========================================================
+# IMAGE DRAWING ANIMATION (PILLOW)
+# =========================================================
+
+SCALE = 150
+OFFSET = 100

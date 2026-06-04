@@ -3,8 +3,8 @@ PYTHON = python3
 VENV = venv
 PIP = $(VENV)/bin/python3 -m pip
 
-LEVEL = challenger
-MAP ?= 01_the_impossible_dream.txt
+LEVEL = hard
+MAP ?= 02_capacity_hell.txt
 
 all: install run
 
@@ -31,7 +31,7 @@ install: venv
 
 # RUN THE GAME
 run:
-	rm -f assets/img/*
+	rm -f assets/frames/*
 	$(VENV)/bin/python3 $(NAME) assets/maps/$(LEVEL)/$(MAP)
 
 # DEBUGGER
@@ -69,7 +69,7 @@ fclean: clean
 	@echo "\n💣 Removing virtual environment..."
 	rm -rf $(VENV)
 	@echo "\n📸 Removing previous generated images..."
-	rm -f assets/img/*
+	rm -f assets/frames/*
 	@echo "\n✅ Full clean complete\n"
 
 re: fclean install

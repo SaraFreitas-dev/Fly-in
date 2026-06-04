@@ -3,6 +3,7 @@ import traceback
 from src.parsing.MapParser import MapParser
 from src.render.Visualizer import Visualizer
 from src.core.Simulator import Simulator
+from src.render.ImageGenerator import ImageGenerator
 
 
 def fly_in() -> None:
@@ -23,6 +24,9 @@ def fly_in() -> None:
 
         visualizer = Visualizer(simul)
         visualizer.print_simulation()
+
+        imagegen = ImageGenerator(simul)
+        imagegen.draw_zones()
 
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
