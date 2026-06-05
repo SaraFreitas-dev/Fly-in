@@ -24,6 +24,9 @@ class Simulator:
         self.occupied_zones: dict[str, list[Drone]] = {}
         self.occupied_links: dict[tuple[str, str], list[Drone]] = {}
 
+        # To use on the image generator - show drones in pos
+        self.turn_states: dict[int, dict[str, int]] = {}
+
     def create_drones(self) -> list[Drone]:
         """
         Generate an id for each drone based
@@ -36,6 +39,18 @@ class Simulator:
             drone = Drone(drone_id, self.start_zone.name, self.end_zone.name)
             self.drones.append(drone)
         return self.drones
+    
+    def save_turn_state(self) -> None:
+        """
+        Save how many drones are in each zone on this turn.
+        This is to be used on the image generator to show the drones
+        """
+        self.turn_states[self.current_turn] = {
+            zone_name: 0
+            for zone_name in self.zones
+        }
+        for drone in self.drones:
+            self.turn_states[self.current_turn][drone.current_zone] += 1
 
     def can_move_to_zone(self, next_zone: str) -> bool:
         """
@@ -119,6 +134,7 @@ class Simulator:
         assert self.end_zone is not None
         simul_result: dict[int, list[str]] = {}
 
+        self.save_turn_state()
         while not all(drone.delivered for drone in self.drones):
             self.current_turn += 1
             current_turn_moves: list[str] = []
@@ -161,4 +177,5 @@ class Simulator:
             # ADD each turn into the result
             if current_turn_moves:
                 simul_result[self.current_turn] = current_turn_moves
+            self.save_turn_state()
         return simul_result

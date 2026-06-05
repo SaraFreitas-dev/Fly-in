@@ -24,6 +24,7 @@ class ImageGenerator:
         self.start = simulator.start_zone
         self.end = simulator.end_zone
         self.simul_res = simulator.simulate_turns()
+        self.turn_states = simulator.turn_states
 
         self.map_name = os.path.splitext(
             os.path.basename(simulator.parser.file_path))[0]
@@ -93,7 +94,7 @@ class ImageGenerator:
                 fill="white",
                 font=value_font)
 
-    def draw_report(self, draw: ImageDraw) -> None:
+    def draw_report(self, draw: ImageDraw, state:) -> None:
         """
         Shows the simulation report banner
         With info such as number of turns and status
@@ -111,8 +112,7 @@ class ImageGenerator:
         card_height = REPORT_HEIGHT - 40
         card_y = IMG_HEIGHT - REPORT_HEIGHT + 20
 
-        drones_delivered = sum(
-            1 for drone in self.drones if drone.delivered)
+        drones_delivered = state.get(self.end, 0)
         max_turns_allowed = TURN_LIMITS[self.folder_name][self.map_name]
 
         cards = [
@@ -138,8 +138,35 @@ class ImageGenerator:
                 title, value,
                 title_font, value_font
             )
+    
+    def draw_drones(self, draw: ImageDraw,
+                    drone_count: int,
+                    radius: int, x: int, y: int) -> None:
+        """
+        For each zone that has at least 1 drone,
+        draw the drone amount on the corresponding circle
+        """
+        if drone_count > 0:
+            count_font = ImageFont.truetype(
+                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                radius)
+            text = str(drone_count)
 
-    def draw_zones(self) -> None:
+            bbox = draw.textbbox(
+                (0, 0),
+                text,
+                font=count_font)
+
+            text_width = bbox[2] - bbox[0]
+            text_height = bbox[3] - bbox[1]
+
+            draw.text((x - text_width / 2,
+                       y - text_height / 2),
+                       text,
+                       fill="black",
+                       font=count_font)
+
+    def draw_all(self) -> None:
         """
         Draw the basics of the frame:
         Zones, Connections as well as their
@@ -152,88 +179,97 @@ class ImageGenerator:
         offset_x = (IMG_WIDTH - map_width) / 2
         offset_y = (IMG_HEIGHT - REPORT_HEIGHT - map_height) / 2    
 
-        # Create the frame base
-        img = Image.new(
-            "RGB",(1400, 900), (25, 25, 35)
-        )
-        draw = ImageDraw.Draw(img)
-
-        # Title
-        self.draw_title(draw)
-
-        # Report banner
-        self.draw_report(draw)
-
-        # Draw connections
-        for connection in self.connections:
-            zone_a, zone_b = connection.zone_a, connection.zone_b
-            zone_a_obj = self.zones[zone_a]
-            zone_b_obj = self.zones[zone_b]
-
-            a_x = (zone_a_obj.x - min_x) * scale + offset_x
-            b_x = (zone_b_obj.x - min_x) * scale + offset_x
-            a_y = (zone_a_obj.y - min_y) * scale + offset_y
-            b_y = (zone_b_obj.y - min_y) * scale + offset_y
-
-            start_point = (a_x, a_y)
-            end_point = (b_x, b_y)
-
-            # Lines - connections
-            draw.line([start_point, end_point], fill=(180, 180, 180), width=4)
-
-        # Draw zones
-        for zone in self.zones.values():
-            zone_symbols = PIL_SYMBOLS.get(zone.zone_type, "X")
-            x = (zone.x - min_x) * scale + offset_x
-            y = (zone.y - min_y) * scale + offset_y
-
-            # Cirles - zones
-            zone_count = len(self.zones)
-            if zone_count <= 10:
-                radius = 35
-            elif zone_count <= 25:
-                radius = 25
-            else:
-                radius = 15
-
-            draw.ellipse(
-                (x - radius, y - radius,
-                 x + radius, y + radius),
-                fill=PIL_COLORS.get(zone.color, "white"),
-                outline="white",
-                width=3
+        for turn, state in self.turn_states.items():
+            # Create the frame base
+            img = Image.new(
+                "RGB",(1400, 900), (25, 25, 35)
             )
+            draw = ImageDraw.Draw(img)
 
-            font_size = max(
-                12,
-                min(20, int(radius * 0.6)))
-            font = ImageFont.truetype(
-                "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-                font_size)
+            # Title
+            self.draw_title(draw)
 
-            if zone_count <= 15:
-                label = f"[{zone_symbols}] {zone.name}"
-            elif zone_count <= 30:
-                label = f"[{zone_symbols}] {zone.name[:8]}..."
-            else:
-                label = f"[{zone_symbols}]"
+            # Report banner
+            self.draw_report(draw)
 
-            bbox = draw.textbbox((0, 0), label, font=font)
-            text_width = bbox[2] - bbox[0]
+            # Draw connections
+            for connection in self.connections:
+                zone_a, zone_b = connection.zone_a, connection.zone_b
+                zone_a_obj = self.zones[zone_a]
+                zone_b_obj = self.zones[zone_b]
 
-            # Text description - zones and zone types
-            if zone == self.start or zone == self.end:
-                color = "green"
-            else:
-                color = "white"
-            draw.text(
-                (x - text_width / 2, y - radius - 30),
-                label,
-                fill=color,
-                font=font
-            )
-        
-        self.save_frames(img, f"frame")
+                a_x = (zone_a_obj.x - min_x) * scale + offset_x
+                b_x = (zone_b_obj.x - min_x) * scale + offset_x
+                a_y = (zone_a_obj.y - min_y) * scale + offset_y
+                b_y = (zone_b_obj.y - min_y) * scale + offset_y
+
+                start_point = (a_x, a_y)
+                end_point = (b_x, b_y)
+
+                # Lines - connections
+                draw.line([start_point, end_point], fill=(180, 180, 180), width=4)
+
+            # Draw zones
+            for zone in self.zones.values():
+                zone_symbols = PIL_SYMBOLS.get(zone.zone_type, "X")
+                x = (zone.x - min_x) * scale + offset_x
+                y = (zone.y - min_y) * scale + offset_y
+
+                # Circles - zones
+                zone_count = len(self.zones)
+                if zone_count <= 10:
+                    radius = 35
+                elif zone_count <= 25:
+                    radius = 25
+                else:
+                    radius = 15
+
+                draw.ellipse(
+                    (x - radius, y - radius,
+                    x + radius, y + radius),
+                    fill=PIL_COLORS.get(zone.color, "white"),
+                    outline="white",
+                    width=3
+                )
+
+                # Zone names and their types
+                font_size = max(
+                    12,
+                    min(20, int(radius * 0.6)))
+                font = ImageFont.truetype(
+                    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+                    font_size)
+
+                if zone_count <= 15:
+                    label = f"[{zone_symbols}] {zone.name}"
+                elif zone_count <= 30:
+                    label = f"[{zone_symbols}] {zone.name[:8]}..."
+                else:
+                    label = f"[{zone_symbols}]"
+
+                bbox = draw.textbbox((0, 0), label, font=font)
+                text_width = bbox[2] - bbox[0]
+
+                if zone == self.start or zone == self.end:
+                    color = "green"
+                else:
+                    color = "white"
+                draw.text(
+                    (x - text_width / 2, y - radius - 30),
+                    label,
+                    fill=color,
+                    font=font
+                )
+
+                # Draw drones per turn
+                drone_count = state.get(zone.name, 0)
+                self.draw_drones(draw,
+                                drone_count,
+                                radius,
+                                x, y)
+                
+            
+            self.save_frames(img, f"frame_{turn:03d}")
 
     def save_frames(self, img: Image, frame_n: str) -> None:
         """

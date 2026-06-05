@@ -26,7 +26,7 @@ def fly_in() -> None:
         visualizer.print_simulation()
 
         imagegen = ImageGenerator(simul)
-        imagegen.draw_zones()
+        imagegen.draw_all()
 
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)
