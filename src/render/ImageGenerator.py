@@ -94,7 +94,7 @@ class ImageGenerator:
                 fill="white",
                 font=value_font)
 
-    def draw_report(self, draw: ImageDraw, state:) -> None:
+    def draw_report(self, draw: ImageDraw, state: dict[str, int]) -> None:
         """
         Shows the simulation report banner
         With info such as number of turns and status
@@ -112,7 +112,7 @@ class ImageGenerator:
         card_height = REPORT_HEIGHT - 40
         card_y = IMG_HEIGHT - REPORT_HEIGHT + 20
 
-        drones_delivered = state.get(self.end, 0)
+        drones_delivered = state.get(self.end.name, 0)
         max_turns_allowed = TURN_LIMITS[self.folder_name][self.map_name]
 
         cards = [
@@ -190,7 +190,7 @@ class ImageGenerator:
             self.draw_title(draw)
 
             # Report banner
-            self.draw_report(draw)
+            self.draw_report(draw, state)
 
             # Draw connections
             for connection in self.connections:
