@@ -4,7 +4,7 @@ VENV = venv
 PIP = $(VENV)/bin/python3 -m pip
 
 LEVEL = hard
-MAP ?= 01_maze_nightmare.txt
+MAP ?= 03_ultimate_challenge.txt
 
 all: install run
 
@@ -18,7 +18,7 @@ venv:
 		echo "📌 To activate the virtual environment run:"; \
 		echo "source $(VENV)/bin/activate"; \
 	else \
-		echo "\n⚠️ Venv already exists\n"; \
+		echo "\n⚠️  Venv already exists\n"; \
 	fi
 
 # INSTALL ALL REQUIREMENTS

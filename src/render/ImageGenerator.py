@@ -2,6 +2,7 @@ import os
 from PIL import Image, ImageDraw, ImageFont
 from src.core.Simulator import Simulator
 from src.render.constants import (PIL_COLORS, PIL_SYMBOLS)
+from src.render.constants import TURN_LIMITS
 
 IMG_WIDTH = 1400
 IMG_HEIGHT = 900
@@ -16,11 +17,18 @@ class ImageGenerator:
     into a gif for animation - All stores in assets/img
     """
     def __init__(self, simulator: Simulator) -> None:
+        self.drones = simulator.drones
+        self.nb_drones = simulator.nb_drones
         self.zones = simulator.zones
         self.connections = simulator.connections
         self.start = simulator.start_zone
         self.end = simulator.end_zone
         self.simul_res = simulator.simulate_turns()
+
+        self.map_name = os.path.splitext(
+            os.path.basename(simulator.parser.file_path))[0]
+        self.folder_name = os.path.basename(
+            os.path.dirname(simulator.parser.file_path))
         
     def get_scale(self) -> tuple[float, int, int, int, int]:
         """
@@ -102,13 +110,16 @@ class ImageGenerator:
         card_width = int((available_width - gap * 3) / 4)
         card_height = REPORT_HEIGHT - 40
         card_y = IMG_HEIGHT - REPORT_HEIGHT + 20
-        
+
+        drones_delivered = sum(
+            1 for drone in self.drones if drone.delivered)
+        max_turns_allowed = TURN_LIMITS[self.folder_name][self.map_name]
+
         cards = [
-            ("LEVEL", "easy"),
-            ("DRONES", "TEST"),
-            ("TURNS", len(self.simul_res)),
-            ("STATUS", "SUCCESS")
-        ]
+            ("LEVEL", self.folder_name),
+            ("MAP", self.map_name),
+            ("DRONES DELIVERED", f"{drones_delivered} / {self.nb_drones}"),
+            ("TURNS", f"{len(self.simul_res)} / {max_turns_allowed} MAX"),]
 
         title_font = ImageFont.truetype(
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -116,7 +127,7 @@ class ImageGenerator:
 
         value_font = ImageFont.truetype(
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
-            22)
+            18)
 
         for i, (title, value) in enumerate(cards):
             x = padding + i * (card_width + gap)
@@ -200,7 +211,13 @@ class ImageGenerator:
                 "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
                 font_size)
 
-            label = f"[{zone_symbols}] {zone.name}"
+            if zone_count <= 15:
+                label = f"[{zone_symbols}] {zone.name}"
+            elif zone_count <= 30:
+                label = f"[{zone_symbols}] {zone.name[:8]}..."
+            else:
+                label = f"[{zone_symbols}]"
+
             bbox = draw.textbbox((0, 0), label, font=font)
             text_width = bbox[2] - bbox[0]
 
