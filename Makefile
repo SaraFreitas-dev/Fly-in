@@ -3,8 +3,8 @@ PYTHON = python3
 VENV = venv
 PIP = $(VENV)/bin/python3 -m pip
 
-LEVEL = hard
-MAP ?= 03_ultimate_challenge.txt
+LEVEL = medium
+MAP ?= 03_priority_puzzle.txt
 
 all: install run
 
@@ -32,6 +32,7 @@ install: venv
 # RUN THE GAME
 run:
 	rm -f assets/frames/*
+	rm -f assets/gif/*
 	$(VENV)/bin/python3 $(NAME) assets/maps/$(LEVEL)/$(MAP)
 
 # DEBUGGER
@@ -70,6 +71,7 @@ fclean: clean
 	rm -rf $(VENV)
 	@echo "\n📸 Removing previous generated images..."
 	rm -f assets/frames/*
+	rm -f assets/gif/*
 	@echo "\n✅ Full clean complete\n"
 
 re: fclean install

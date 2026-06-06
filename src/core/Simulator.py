@@ -39,7 +39,7 @@ class Simulator:
             drone = Drone(drone_id, self.start_zone.name, self.end_zone.name)
             self.drones.append(drone)
         return self.drones
-    
+
     def save_turn_state(self) -> None:
         """
         Save how many drones are in each zone on this turn.
@@ -106,7 +106,11 @@ class Simulator:
                 self.occupied_zones.pop(drone.current_zone)
 
         # Occupy the connection link
-        link = tuple(sorted([drone.current_zone, next_zone]))
+        # A sort avoiding mypy errors
+        if drone.current_zone < next_zone:
+            link = (drone.current_zone, next_zone)
+        else:
+            link = (next_zone, drone.current_zone)
 
         if link not in self.occupied_links:
             self.occupied_links[link] = []
@@ -114,6 +118,10 @@ class Simulator:
 
         # Move the drone forward in the path
         drone.current_zone = next_zone
+
+        # Stop conting turns when its all delivered
+        if next_zone == self.end_zone.name:
+            drone.delivered = True
 
         if next_zone != self.end_zone.name:
             if next_zone not in self.occupied_zones:

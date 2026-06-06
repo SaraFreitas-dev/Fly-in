@@ -27,6 +27,7 @@ def fly_in() -> None:
 
         imagegen = ImageGenerator(simul)
         imagegen.draw_all()
+        imagegen.generate_gif()
 
     except Exception as e:
         tb = traceback.extract_tb(e.__traceback__)

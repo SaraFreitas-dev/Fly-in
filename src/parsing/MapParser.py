@@ -187,13 +187,13 @@ class MapParser:
         else:
             c_data = value
 
-        c_data = c_data.split('-')
+        clean_data = c_data.split('-')
 
         # ZONE AMOUNT
-        if len(c_data) != 2:
+        if len(clean_data) != 2:
             raise MapParserError("Each connection must have "
                                  "exactly two zones.")
-        zone_a, zone_b = c_data
+        zone_a, zone_b = clean_data
         zone_a, zone_b = zone_a.strip(), zone_b.strip()
 
         # SELF CONNECTION

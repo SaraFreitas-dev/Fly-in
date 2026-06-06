@@ -1,4 +1,5 @@
 from src.core.models import Zone, Connection
+from src.core.models import Drone
 from src.render.constants import MOVEMENT_COSTS
 import heapq
 
@@ -57,7 +58,8 @@ class PathFinder():
         return zone_lst
 
     def dijkstra_shortest_path(self, start: str, end: str,
-                               occupied_zones: dict[str, list]) -> list[str]:
+                               occupied_zones: dict[str, list[Drone]]
+                               ) -> list[str]:
         """
         Calculate the shortest path from the start to the end zone
         taking into considerantion the least cost possible

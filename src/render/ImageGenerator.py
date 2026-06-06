@@ -1,5 +1,6 @@
 import os
-from PIL import Image, ImageDraw, ImageFont
+from typing import Any
+from PIL import (Image, ImageDraw, ImageFont)
 from src.core.Simulator import Simulator
 from src.render.constants import (PIL_COLORS, PIL_SYMBOLS)
 from src.render.constants import TURN_LIMITS
@@ -30,7 +31,7 @@ class ImageGenerator:
             os.path.basename(simulator.parser.file_path))[0]
         self.folder_name = os.path.basename(
             os.path.dirname(simulator.parser.file_path))
-        
+
     def get_scale(self) -> tuple[float, int, int, int, int]:
         """
         Get the correct scale,
@@ -52,7 +53,7 @@ class ImageGenerator:
 
         return scale, min_x, max_x, min_y, max_y
 
-    def draw_title(self, draw: ImageDraw) -> None:
+    def draw_title(self, draw: Any) -> None:
         """Show a simple title of the project"""
         title_font = ImageFont.truetype(
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -60,7 +61,7 @@ class ImageGenerator:
         title = "FLY-IN SIMULATION"
         bbox = draw.textbbox((0, 0), title, font=title_font)
         title_width = bbox[2] - bbox[0]
-        
+
         draw.text(((IMG_WIDTH - title_width) / 2, 20),
                   title,
                   fill="white",
@@ -72,38 +73,35 @@ class ImageGenerator:
                   fill=(80, 80, 80),
                   width=1)
 
-    def draw_card(self,
-                  draw: ImageDraw,
+    def draw_card(self, draw: Any,
                   x: int, y: int,
                   width: int, height: int,
                   title: str, value: int | str,
-                  title_font: ImageFont,
-                  value_font: ImageFont):
-        draw.rounded_rectangle((x, y,
-                                x + width, y + height),
-                                radius=10,
-                                outline=(80, 80, 80),
-                                width=2)
+                  title_font: Any,
+                  value_font: Any) -> None:
+        draw.rounded_rectangle((x, y, x + width, y + height),
+                               radius=10,
+                               outline=(80, 80, 80),
+                               width=2)
         draw.text((x + 15, y + 12),
-                title,
-                fill=(180, 180, 180),
-                font=title_font)
+                  title,
+                  fill=(180, 180, 180),
+                  font=title_font)
 
         draw.text((x + 15, y + 50),
-                str(value),
-                fill="white",
-                font=value_font)
+                  str(value),
+                  fill="white",
+                  font=value_font)
 
-    def draw_report(self, draw: ImageDraw, state: dict[str, int]) -> None:
+    def draw_report(self, draw: Any,
+                    state: dict[str, int],
+                    turn: int) -> None:
         """
         Shows the simulation report banner
         With info such as number of turns and status
         """
-        draw.rectangle((0,
-                        IMG_HEIGHT - REPORT_HEIGHT,
-                        IMG_WIDTH,
-                        IMG_HEIGHT),
-                        fill=(20, 20, 20))
+        draw.rectangle((0, IMG_HEIGHT - REPORT_HEIGHT,
+                        IMG_WIDTH, IMG_HEIGHT), fill=(20, 20, 20))
         padding = 20
         gap = 20
 
@@ -112,14 +110,17 @@ class ImageGenerator:
         card_height = REPORT_HEIGHT - 40
         card_y = IMG_HEIGHT - REPORT_HEIGHT + 20
 
+        assert self.end is not None
         drones_delivered = state.get(self.end.name, 0)
+
+        # Max turns permitted, depending on the path level
         max_turns_allowed = TURN_LIMITS[self.folder_name][self.map_name]
 
         cards = [
             ("LEVEL", self.folder_name),
             ("MAP", self.map_name),
             ("DRONES DELIVERED", f"{drones_delivered} / {self.nb_drones}"),
-            ("TURNS", f"{len(self.simul_res)} / {max_turns_allowed} MAX"),]
+            ("TURNS", f"{turn} / {max_turns_allowed} Max"),]
 
         title_font = ImageFont.truetype(
             "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
@@ -138,10 +139,10 @@ class ImageGenerator:
                 title, value,
                 title_font, value_font
             )
-    
-    def draw_drones(self, draw: ImageDraw,
+
+    def draw_drones(self, draw: Any,
                     drone_count: int,
-                    radius: int, x: int, y: int) -> None:
+                    radius: int, x: float, y: float) -> None:
         """
         For each zone that has at least 1 drone,
         draw the drone amount on the corresponding circle
@@ -160,11 +161,8 @@ class ImageGenerator:
             text_width = bbox[2] - bbox[0]
             text_height = bbox[3] - bbox[1]
 
-            draw.text((x - text_width / 2,
-                       y - text_height / 2),
-                       text,
-                       fill="black",
-                       font=count_font)
+            draw.text((x - text_width / 2, y - text_height / 2),
+                      text, fill="black", font=count_font)
 
     def draw_all(self) -> None:
         """
@@ -177,20 +175,18 @@ class ImageGenerator:
         map_width = (max_x - min_x) * scale
         map_height = (max_y - min_y) * scale
         offset_x = (IMG_WIDTH - map_width) / 2
-        offset_y = (IMG_HEIGHT - REPORT_HEIGHT - map_height) / 2    
+        offset_y = (IMG_HEIGHT - REPORT_HEIGHT - map_height) / 2
 
         for turn, state in self.turn_states.items():
             # Create the frame base
-            img = Image.new(
-                "RGB",(1400, 900), (25, 25, 35)
-            )
+            img = Image.new("RGB", (1400, 900), (25, 25, 35))
             draw = ImageDraw.Draw(img)
 
             # Title
             self.draw_title(draw)
 
             # Report banner
-            self.draw_report(draw, state)
+            self.draw_report(draw, state, turn)
 
             # Draw connections
             for connection in self.connections:
@@ -207,7 +203,8 @@ class ImageGenerator:
                 end_point = (b_x, b_y)
 
                 # Lines - connections
-                draw.line([start_point, end_point], fill=(180, 180, 180), width=4)
+                draw.line([start_point, end_point],
+                          fill=(180, 180, 180), width=4)
 
             # Draw zones
             for zone in self.zones.values():
@@ -225,8 +222,7 @@ class ImageGenerator:
                     radius = 15
 
                 draw.ellipse(
-                    (x - radius, y - radius,
-                    x + radius, y + radius),
+                    (x - radius, y - radius, x + radius, y + radius),
                     fill=PIL_COLORS.get(zone.color, "white"),
                     outline="white",
                     width=3
@@ -240,12 +236,15 @@ class ImageGenerator:
                     "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
                     font_size)
 
-                if zone_count <= 15:
+                if zone_count < 15:
                     label = f"[{zone_symbols}] {zone.name}"
+                    pad = 30
                 elif zone_count <= 30:
                     label = f"[{zone_symbols}] {zone.name[:8]}..."
+                    pad = 20
                 else:
                     label = f"[{zone_symbols}]"
+                    pad = 20
 
                 bbox = draw.textbbox((0, 0), label, font=font)
                 text_width = bbox[2] - bbox[0]
@@ -255,7 +254,7 @@ class ImageGenerator:
                 else:
                     color = "white"
                 draw.text(
-                    (x - text_width / 2, y - radius - 30),
+                    (x - text_width / 2, y - radius - pad),
                     label,
                     fill=color,
                     font=font
@@ -264,14 +263,13 @@ class ImageGenerator:
                 # Draw drones per turn
                 drone_count = state.get(zone.name, 0)
                 self.draw_drones(draw,
-                                drone_count,
-                                radius,
-                                x, y)
-                
-            
-            self.save_frames(img, f"frame_{turn:03d}")
+                                 drone_count,
+                                 radius,
+                                 x, y)
 
-    def save_frames(self, img: Image, frame_n: str) -> None:
+            self.save_frames(img, f"frame_{turn:02d}")
+
+    def save_frames(self, img: Any, frame_n: str) -> None:
         """
         Checks if the img folder already exists
         on assets, generates and stores each frame
@@ -281,3 +279,37 @@ class ImageGenerator:
             exist_ok=True
         )
         img.save(f"assets/frames/{frame_n}.png")
+
+    def generate_gif(self) -> None:
+        """
+        Generate a gif based on the previous
+        created frames
+        """
+        try:
+            os.makedirs(
+                "assets/gif",
+                exist_ok=True
+            )
+
+            frames = sorted([
+                frame for frame in os.listdir("assets/frames")])
+            gif_path = "assets/gif/simulation.gif"
+
+            if len(frames) <= 10:
+                duration = 600
+            else:
+                duration = 800
+
+            images = [
+                Image.open(os.path.join("assets/frames", frame))
+                for frame in frames
+            ]
+            images[0].save(
+                gif_path,
+                save_all=True,
+                append_images=images[1:],
+                duration=duration,
+                loop=1
+            )
+        except IndexError as e:
+            raise IndexError(f"{e}")

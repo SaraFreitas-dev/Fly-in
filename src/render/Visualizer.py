@@ -76,7 +76,7 @@ class Visualizer:
         path = self.parser.file_path
         file_name = os.path.basename(path).split(".txt")[0]
         folder_name = os.path.basename(os.path.dirname(path))
-        total_turns = len(self.simul_result)
+        total_turns = self.simulator.current_turn
         max_turns_allowed = TURN_LIMITS[folder_name][file_name]
 
         print("\n═════════════════════════════════════════\n"
